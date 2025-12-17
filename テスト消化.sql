@@ -20,13 +20,13 @@ END;
 /* 日付毎の完了数を集計して表VTに格納 */
 CREATE TABLE VT;
 INSERT INTO VT
-SELECT '日付', SUM('完了数') AS '完了数'
+SELECT '日付', SUM('テスト消化数') AS 'テスト消化数'
 FROM
 (
 SELECT DT.'日付'
   ,IIF(T2.'説明' IS NOT NULL,
    (LENGTH(T2.'説明')-LENGTH(REPLACE(T2.'説明', DT.'日付', "")))/10
-   ,0) AS '完了数'
+   ,0) AS 'テスト消化数'
 FROM DT
 LEFT JOIN T2 ON T2.'説明' LIKE "%" + DT.'日付' + "%"
 )
@@ -35,8 +35,8 @@ GROUP BY '日付';
 /* 日付毎の残数を計算して表示 */
 SELECT '日付'
   ,IIF(DATEDIFF(day, '日付', "today") < 0, NULL, 
-   @test_num - (SELECT SUM('完了数') FROM VT VT2 WHERE VT2.'日付' <= VT.'日付')) AS '残テスト数'
+   @test_num - (SELECT SUM('テスト消化数') FROM VT VT2 WHERE VT2.'日付' <= VT.'日付')) AS '残テスト数'
   ,IIF(DATEDIFF(day, '日付', "today") < 0, NULL, 
-   '完了数') AS 'テスト消化数'  
+   'テスト消化数') AS 'テスト消化数'  
 FROM VT
 ORDER BY '日付'

@@ -5,10 +5,6 @@ SET @test_num= (SELECT
   -LENGTH(REPLACE('説明'->getView(), "<tr>", "")))/4 - 1)
 FROM T2);
 
-/* 補正比率を計算 */
-SET @bug_num = (SELECT COUNT(*) FROM T3);
-SET @scale = ROUND(@test_num/@bug_num, 0);
-
 /* 期間分の日付値を表DTに格納 */
 SET @date1 = (SELECT MIN('開始日') FROM T1);
 SET @date2 = (SELECT MAX('終了日') FROM T1);
@@ -35,7 +31,11 @@ FROM DT
 LEFT JOIN T2 ON T2.'説明' LIKE "%" + DT.'日付' + "%"
 )
 GROUP BY '日付';
-  
+
+/* バグ数の補正比率を計算 */
+SET @bug_num = (SELECT COUNT(*) FROM T3);
+SET @scale = ROUND(@test_num/@bug_num, 0);
+
 /* 日付毎の残数を計算して表示 */
 SELECT '日付'
   ,IIF(DATEDIFF(day, '日付', "today") < 0, NULL, 
